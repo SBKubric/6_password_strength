@@ -1,12 +1,12 @@
 import re
+import getpass
+
 
 def check_if_in_blacklist(password):
     with open('password_list') as password_list:
         blacklist = re.findall(r'\w+', password_list.read())
-        for pas in blacklist:
-            if password.lower() == pas:
-                return True
-    return False
+    if password.lower() in blacklist:
+        return True
 
 
 def check_for_errors(password):
@@ -19,13 +19,13 @@ def check_for_errors(password):
     special_error = re.search(r'\W', password) is None
 
     return {
-        'blacklist_error' : blacklist_error,
-        'len_error' : len_error,
-        'long_check' : long_check,
-        'digit_error' : digit_error,
-        'lowercase_error' : lowercase_error,
-        'uppercase_error' : uppercase_error,
-        'special_error' : special_error,
+        'blacklist_error': blacklist_error,
+        'len_error': len_error,
+        'long_check': long_check,
+        'digit_error': digit_error,
+        'lowercase_error': lowercase_error,
+        'uppercase_error': uppercase_error,
+        'special_error': special_error,
     }
 
 
@@ -50,8 +50,9 @@ def get_password_strength(check_results):
 
 if __name__ == '__main__':
     pwd = ''
-    print('Enter your password:')
+    pwd = getpass.getpass('Enter your password:')
     while pwd == '':
-        pwd = input()
+        print('The password can\'t have zero length!')
+        pwd = getpass.getpass()
     res = get_password_strength(check_for_errors(pwd))
     print('Password strength is %s out of 10.' % res)
