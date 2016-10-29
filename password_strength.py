@@ -1,5 +1,13 @@
 import re
+import os
+import urllib
 import getpass
+
+
+def set_blacklist():
+    if not os.path.isfile('password_list'):
+        url = 'https://github.com/SBKubric/SecLists/raw/master/Passwords/10_million_password_list_top_1000000.txt'
+        urllib.urlretrieve(url, 'password_list')
 
 
 def check_if_in_blacklist(password):
@@ -49,6 +57,7 @@ def get_password_strength(check_results):
 
 
 if __name__ == '__main__':
+    set_blacklist()
     pwd = ''
     pwd = getpass.getpass('Enter your password:')
     while pwd == '':
