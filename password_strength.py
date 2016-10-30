@@ -1,13 +1,26 @@
 import re
 import os
-import urllib
+import sys
+import urllib.request as request
+import argparse
 import getpass
 
+default_blacklist_url = 'https://github.com/SBKubric/SecLists/raw/master/' \
+                        'Passwords/10_million_password_list_top_1000000.txt'
 
-def set_blacklist():
-    if not os.path.isfile('password_list'):
-        url = 'https://github.com/SBKubric/SecLists/raw/master/Passwords/10_million_password_list_top_1000000.txt'
-        urllib.urlretrieve(url, 'password_list')
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-bl', '--blacklist', )
+
+
+def set_blacklist(url=default_blacklist_url):
+    print('Checking if the blacklist_file has been downloaded...')
+    if os.path.isfile('./password_list'):
+        return None
+    print('Downloading the blacklist_file')
+    request.urlretrieve(url, 'password_list')
 
 
 def check_if_in_blacklist(password):
@@ -57,7 +70,11 @@ def get_password_strength(check_results):
 
 
 if __name__ == '__main__':
-    set_blacklist()
+    if '-bl' in sys.argv:
+        url = next(sys.argv)
+        set_blacklist(url)
+    else:
+        set_blacklist()
     pwd = ''
     pwd = getpass.getpass('Enter your password:')
     while pwd == '':
