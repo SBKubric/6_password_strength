@@ -1,30 +1,33 @@
 import re
 import os
-import sys
 import urllib.request as request
 import argparse
 import getpass
 
-default_blacklist_url = 'https://github.com/SBKubric/SecLists/raw/master/' \
-                        'Passwords/10_million_password_list_top_1000000.txt'
+global blacklist_location
+global url_default
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='The script is designed for estimating strength of your password.')
+    parser.add_argument('-u', '--url', default='https://github.com/SBKubric/SecLists/raw/master/'
+                                               'Passwords/10_million_password_list_top_1000000.txt',
+                        help='The url to the location of the blacklist file with passwords.')
+    parser.add_argument('-bl', '--blacklist', default='./password_list', help='The local location of the blacklist'
+                                                                              'with passwords.')
+    return parser.parse_args()
 
-    parser.add_argument('-bl', '--blacklist', )
 
-
-def set_blacklist(url=default_blacklist_url):
-    print('Checking if the blacklist_file has been downloaded...')
-    if os.path.isfile('./password_list'):
+def set_blacklist(path, url, *, do_upload=False):
+    print('Checking if there is a local copy of the blacklist_file...')
+    if os.path.isfile(path) and not do_upload:
         return None
-    print('Downloading the blacklist_file')
+    print('Downloading the blacklist_file...')
     request.urlretrieve(url, 'password_list')
 
 
 def check_if_in_blacklist(password):
-    with open('password_list') as password_list:
+    with open(blacklist_location) as password_list:
         blacklist = re.findall(r'\w+', password_list.read())
     if password.lower() in blacklist:
         return True
@@ -70,15 +73,15 @@ def get_password_strength(check_results):
 
 
 if __name__ == '__main__':
-    if '-bl' in sys.argv:
-        url = next(sys.argv)
-        set_blacklist(url)
-    else:
-        set_blacklist()
+    url_default = 'https://github.com/SBKubric/SecLists/raw/master/' \
+                  'Passwords/10_million_password_list_top_1000000.txt'
+    args = parse_args()
+    blacklist_location = args.blacklist
+    set_blacklist(args.blacklist, args.url, do_upload=args.url != url_default)
     pwd = ''
-    pwd = getpass.getpass('Enter your password:')
+    pwd = getpass.getpass('Enter your password:\n=> ')
     while pwd == '':
-        print('The password can\'t have zero length!')
-        pwd = getpass.getpass()
+        print()
+        pwd = getpass.getpass('The password can\'t have zero length!\n=> ')
     res = get_password_strength(check_for_errors(pwd))
     print('Password strength is %s out of 10.' % res)
