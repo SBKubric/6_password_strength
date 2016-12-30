@@ -28,32 +28,27 @@ def check_if_in_blacklist(password, blacklist_location):
 
 def check_for_errors(password, blacklist_location):
     return {
-        'blacklist_check': check_if_in_blacklist(password, blacklist_location),
-        'short_password_check': len(password) < 6,
+        'blacklist_check': not check_if_in_blacklist(password, blacklist_location),
+        'short_password_check': len(password) >= 6,
         'long_password_check': len(password) >= 10,
+        'long_long_password_check': len(password) >= 16,
         'digit_check': re.search(r'[0-9]', password) is not None,
         'lowercase_check': re.search(r'[a-z]', password) is not None,
         'uppercase_check': re.search(r'[A-Z]', password) is not None,
-        'special_check': re.search(r'\W', password) is not None,
+        'special_symbol_check': re.search(r'\W', password, flags=re.UNICODE) is not None,
+        'other_locales_symbol_check': re.search(r'[^\W\d_]+', password, flags=re.UNICODE) is not None,
     }
 
 
 def get_password_strength(check_results):
-    if check_results['blacklist_check']:
+    if not check_results['blacklist_check']:
         return 1
-    if check_results['short_password_check']:
+    if not check_results['short_password_check']:
         return 2
-    sum = 3
-    if check_results['long_password_check']:
-        sum += 2
-    if check_results['digit_check']:
-        sum += 1
-    if check_results['lowercase_check']:
-        sum += 1
-    if check_results['uppercase_check']:
-        sum += 1
-    if check_results['special_check']:
-        sum += 2
+    sum = 1
+    for check_result in check_results:
+            if check_results[check_result]:
+                sum += 1
     return sum
 
 
