@@ -45,11 +45,11 @@ def get_password_strength(check_results):
         return 1
     if not check_results['short_password_check']:
         return 2
-    sum = 1
+    strength = 1
     for check_result in check_results:
             if check_results[check_result]:
-                sum += 1
-    return sum
+                strength += 1
+    return strength
 
 
 if __name__ == '__main__':
